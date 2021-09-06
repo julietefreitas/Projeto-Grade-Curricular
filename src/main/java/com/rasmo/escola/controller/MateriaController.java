@@ -1,4 +1,4 @@
-package com.rasmo.java.controller;
+package com.rasmo.escola.controller;
 
 import java.util.List;
 
