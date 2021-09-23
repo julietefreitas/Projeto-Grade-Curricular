@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.rasmo.escola.dto.MateriaDTO;
 import com.rasmo.escola.entity.MateriaEntity;
+import com.rasmo.escola.exception.MateriaException;
 import com.rasmo.escola.repository.MateriaRepository;
 
 @Service
@@ -15,6 +19,15 @@ public class MateriaServiceImpl implements MateriaService {
 
 	@Autowired
 	private MateriaRepository materiaRepository;
+	
+	@Autowired
+	private ModelMapper mapper;
+	
+	@Autowired
+	public MateriaServiceImpl(MateriaRepository materiaRepository) {
+		this.mapper = new ModelMapper();
+		this.materiaRepository = materiaRepository;
+	}
 	
 	@Override
 	public List<MateriaEntity> listarMaterias() {
@@ -26,22 +39,24 @@ public class MateriaServiceImpl implements MateriaService {
 	}
 	
 	@Override
-	public MateriaEntity consultarMateria(Long id) {
+	public MateriaDTO consultarMateria(Long id) {
 		try {
 			Optional<MateriaEntity> materiaOptional = this.materiaRepository.findById(id);
 			if(materiaOptional.isPresent()) {
-				return materiaOptional.get();
+				 return mapper.map(materiaOptional.get(),MateriaDTO.class);
+
 			}
-		return null;	
-		} catch(Exception e) {
-			return null;
+			throw new MateriaException("Matéria não Encontrada!", HttpStatus.NOT_FOUND);	
+		} catch(MateriaException e) {
+			throw new MateriaException("Erro interno identificado. Contate o suporte!", HttpStatus.INTERNAL_SERVER_ERROR);	
 		}
 	}
 
 	@Override
-	public Boolean cadastrarMateria(MateriaEntity materia) {
+	public Boolean cadastrarMateria(MateriaDTO materia) {
 		try {
-			this.materiaRepository.save(materia);
+			MateriaEntity materiaEntity = mapper.map(materia,MateriaEntity.class);
+			this.materiaRepository.save(materiaEntity);
 			return true;
 		}catch(Exception e) {
 			return false;
@@ -49,16 +64,12 @@ public class MateriaServiceImpl implements MateriaService {
 	}
 	
 	@Override
-	public Boolean atualizarMateria(MateriaEntity materia) {
+	public Boolean atualizarMateria(MateriaDTO materia) {
 		try {
 			Optional<MateriaEntity> materiaOptional = this.materiaRepository.findById(materia.getId());
 			if(materiaOptional.isPresent()) {
-				MateriaEntity materiaAtualizada= materiaOptional.get();
-				materiaAtualizada.setNome(materia.getNome());
-				materiaAtualizada.setCodigo(materia.getCodigo());
-				materiaAtualizada.setFrequencia(materia.getFrequencia());
-				materiaAtualizada.setHoras(materia.getHoras());
-				this.materiaRepository.save(materiaAtualizada);
+				MateriaEntity entity = mapper.map(materia,MateriaEntity.class);
+				this.materiaRepository.save(entity);
 				return true;
 			}
 			return false;	
@@ -70,10 +81,13 @@ public class MateriaServiceImpl implements MateriaService {
 	@Override
 	public Boolean excluirMateria(Long id) {
 		try {
+			this.consultarMateria(id);
 			this.materiaRepository.deleteById(id);
 			return true;
+		}catch(MateriaException e) {
+			throw e;
 		}catch(Exception e) {
-			return false;
+			throw e;
 		}
 	}
 

@@ -13,8 +13,13 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table(name = "tb_materia")
+@Data
 public class MateriaEntity implements Serializable {
 	/**
 	 * 
@@ -40,49 +45,6 @@ public class MateriaEntity implements Serializable {
 	
 	@Column(name="freq")
 	private int frequencia;
-	
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public String getNome() {
-		return nome;
-	}
-
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
-
-	public int getHoras() {
-		return horas;
-	}
-
-	public void setHoras(int horas) {
-		this.horas = horas;
-	}
-
-	public String getCodigo() {
-		return codigo;
-	}
-
-	public void setCodigo(String codigo) {
-		this.codigo = codigo;
-	}
-
-	public int getFrequencia() {
-		return frequencia;
-	}
-
-	public void setFrequencia(int frequencia) {
-		this.frequencia = frequencia;
-	}
-
-
-
 
 	MateriaEntity(){}
 }
